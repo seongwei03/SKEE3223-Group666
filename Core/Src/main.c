@@ -194,45 +194,44 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  //Read value from Photoresistor (LDR)
 	  HAL_ADC_Start(&hadc1);
 	  HAL_ADC_PollForConversion(&hadc1,200);
 	  luxvalue = HAL_ADC_GetValue(&hadc1);
 
 	  //Read values from DHT11
 	  if(DHT11_Start())
+	  {
+		  RHI = DHT11_Read(); // Relative humidity integral
+	  	  RHD = DHT11_Read(); // Relative humidity decimal
+	  	  TCI = DHT11_Read(); // Celsius integral
+	  	  TCD = DHT11_Read(); // Celsius decimal
+	  	  SUM = DHT11_Read(); // Check sum
+	  	  if (RHI + RHD + TCI + TCD == SUM)
 	  	  {
-	  		  RHI = DHT11_Read(); // Relative humidity integral
-	  	 	  RHD = DHT11_Read(); // Relative humidity decimal
-	  	 	  TCI = DHT11_Read(); // Celsius integral
-	  	 	  TCD = DHT11_Read(); // Celsius decimal
-	  	 	  SUM = DHT11_Read(); // Check sum
-	  	 	  if (RHI + RHD + TCI + TCD == SUM)
-	  	 	  {
-	  	 	        tCelsius = (float)TCI + (float)(TCD/10.0); //transform the data
-	  	 	        sprintf(strCopy,"TEMP: %d.%d C", TCI, TCD); //print the temperature value
-	  	 	        HD44780_SetCursor(0,0); //print the temperature at first row
-	  	 	        HD44780_PrintStr(strCopy);
-	  	 	  }
+	  		  tCelsius = (float)TCI + (float)(TCD/10.0); //transform the data
+	  		  sprintf(strCopy,"TEMP: %d.%d C", TCI, TCD); //print the temperature value
+	  		  HD44780_SetCursor(0,0); //print the temperature at first row
+	  		  HD44780_PrintStr(strCopy);
 	  	  }
-	  	  //if temperature and intensity exceed the threshold value
-	  	  if (tCelsius > 35.0 || luxvalue > 300 )
-	  	  {
-	  		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7,GPIO_PIN_SET); //turn on buzzer
-	  	  	  HD44780_SetCursor(0,1); //print the message at second row
-	  	  	  HD44780_PrintStr("          ");//clear the second row
-	  	  	  HD44780_SetCursor(0,1);//print the message at second row
-	  	  	  HD44780_PrintStr("ABNORMAL!!");//print message "abnormal" on the LCD
-	  	  }
-	  	  else
-	  	  {
-	  	  	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET); //turn of buzzer
-	  	  	  HD44780_SetCursor(0,1);//print the message at second row
-	  	  	  HD44780_PrintStr("          ");//clear the second row
-	  	  	  HD44780_SetCursor(0,1);//print the message at second row
-	  	  	  HD44780_PrintStr("Normal...");//print message "normal" on the LCD
-	  	  }
-	  	  HAL_Delay(20);
+	  }
+	  //if temperature and intensity exceed the threshold value
+	  if (tCelsius > 35.0 & luxvalue > 300 )
+	  {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7,GPIO_PIN_SET); //turn on buzzer
+		  HD44780_SetCursor(0,1); //print the message at second row
+	  	  HD44780_PrintStr("          ");//clear the second row
+	  	  HD44780_SetCursor(0,1);//print the message at second row
+	  	  HD44780_PrintStr("ABNORMAL!!");//print message "abnormal" on the LCD
+	  }
+	  else
+	  {
+	  	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET); //turn of buzzer
+	  	  HD44780_SetCursor(0,1);//print the message at second row
+	  	  HD44780_PrintStr("          ");//clear the second row
+	  	  HD44780_SetCursor(0,1);//print the message at second row
+	  	  HD44780_PrintStr("Normal...");//print message "normal" on the LCD
+	  }
+	  HAL_Delay(20);
 
     /* USER CODE BEGIN 3 */
   }
